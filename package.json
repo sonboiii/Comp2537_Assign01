@@ -1,0 +1,26 @@
+{
+  "name": "comp2537_assign01",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sonboiii/Comp2537_Assign01.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sonboiii/Comp2537_Assign01/issues"
+  },
+  "homepage": "https://github.com/sonboiii/Comp2537_Assign01#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0",
+    "express-session": "^1.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
