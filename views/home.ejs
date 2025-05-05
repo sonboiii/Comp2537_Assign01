@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Home</title>
+</head>
+
+<body>
+    <h1>Welcome!</h1>
+
+    <% if (user) { %>
+        <p>Hello, <%= user.name %>!</p>
+        <a href="/members">Go to Members Area</a>
+        <br>
+        <a href="/logout">Logout</a>
+    <% } else { %>
+        <p>Please sign up or log in to access the members area.</p>
+        <a href="/signup">Sign Up</a>
+        <br>
+        <a href="/login">Log In</a>
+    <% } %>
+
+</body>
+
+</html>

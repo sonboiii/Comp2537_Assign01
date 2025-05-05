@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Members Area</title>
+</head>
+
+<body>
+    <h1>Members Area</h1>
+
+    <% if (user) { %>
+        <p>Hello, <%= user.name %>!</p>
+        <img src="/images/<%= randomImage %>" alt="Random Cat Meme">
+        <br>
+        <a href="/logout">Logout</a>
+    <% } else { %>
+        <p>You are not logged in.</p>
+        <a href="/">Go to Home</a>
+    <% } %>
+
+</body>
+
+</html>
