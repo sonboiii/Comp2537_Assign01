@@ -30,7 +30,7 @@ const MongoStore = connectMongo.create({
 
 app.use(
   session({
-    secret: process.env.MONGODB_SESSION_SECRET,
+    secret: process.env.NODE_SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     store: MongoStore,
