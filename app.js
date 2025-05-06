@@ -198,20 +198,20 @@ async function loginPost(req, res) {
     const user = await users.findOne({ email: value.email });
 
     if (!user) {
-      return res.status(400).send('Invalid email/password combination');
+      return res.render('login', { message: 'Invalid email/password combination' }); //  <--  CHANGED
     }
 
     const passwordMatch = await bcrypt.compare(value.password, user.password);
 
     if (passwordMatch) {
       req.session.user = { name: user.name, email: user.email };
-      res.redirect('/');
+      res.redirect('/'); //  Or wherever you want to go on successful login
     } else {
-      return res.status(400).send('Invalid email/password combination');
+      return res.render('login', { message: 'Invalid email/password combination' }); //  <--  CHANGED
     }
   } catch (err) {
     console.error('Error during login', err);
-    res.status(500).send('Error logging in');
+    res.status(500).render('login', { message: 'Error logging in' }); //  <--  CHANGED
   }
 }
 
