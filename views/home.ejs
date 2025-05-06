@@ -6,20 +6,16 @@
 </head>
 
 <body>
-    <h1>Welcome!</h1>
 
+    <h1>My Awesome App</h1>
+  
     <% if (user) { %>
-        <p>Hello, <%= user.name %>!</p>
-        <a href="/members">Go to Members Area</a>
-        <br>
-        <a href="/logout">Logout</a>
+      <p><%= message %></p>
+      <a href="<%= membersLink %>">Members Only Area</a> | <a href="<%= logoutLink %>">Sign Out</a>
     <% } else { %>
-        <p>Please sign up or log in to access the members area.</p>
-        <a href="/signup">Sign Up</a>
-        <br>
-        <a href="/login">Log In</a>
+      <p>Welcome! Please <a href="<%= signupLink %>">Sign Up</a> or <a href="<%= loginLink %>">Log In</a></p>
     <% } %>
-
-</body>
+  
+  </body>
 
 </html>
