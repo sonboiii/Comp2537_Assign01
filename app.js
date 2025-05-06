@@ -78,6 +78,7 @@ async function run() {
 
     // --- ROUTES ---
     app.get('/', home);
+    app.post('/', homePost);
     app.get('/signup', signup);
     app.post('/signup', signupPost);
     app.get('/login', login);
@@ -123,6 +124,12 @@ async function home(req, res) {
   }
 }
 
+async function homePost(req, res) {
+  const data = req.body;
+  console.log("Data received in POST request to /:", data);
+
+  res.send("Received your POST request!");
+}
 async function signup(req, res) {
   res.render('signup');
 }
