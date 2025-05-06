@@ -11,8 +11,8 @@
     <% if (user) { %>
         <p>Hello, <%= user.name %>!</p>
         <a href="/logout">Logout</a>
-        <img src="/images/<%= randomImage %>" alt="Random Cat Meme">
         <br>
+        <img src="/images/<%= randomImage %>" alt="Random Cat Meme">
     <% } else { %>
         <p>You are not logged in.</p>
         <a href="/">Go to Home</a>
