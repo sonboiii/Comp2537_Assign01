@@ -10,9 +10,9 @@
 
     <% if (user) { %>
         <p>Hello, <%= user.name %>!</p>
+        <a href="/logout">Logout</a>
         <img src="/images/<%= randomImage %>" alt="Random Cat Meme">
         <br>
-        <a href="/logout">Logout</a>
     <% } else { %>
         <p>You are not logged in.</p>
         <a href="/">Go to Home</a>
