@@ -30,8 +30,17 @@ const ENCRYPTION_KEY_LENGTH = 32; // 256 bits
 let encryptionKey; // Store the derived key
 
 async function deriveEncryptionKey() {
-  const derivedKey = await bcrypt.hash(SESSION_ENCRYPTION_SALT, 10);
-  encryptionKey = derivedKey.substring(0, ENCRYPTION_KEY_LENGTH); // Use a safe length
+  if (!SESSION_ENCRYPTION_SALT) {
+    console.error('ERROR: SESSION_ENCRYPTION_SALT is not defined in .env!');
+    throw new Error('SESSION_ENCRYPTION_SALT is not defined'); // Prevent server start
+  }
+  try {
+    const derivedKey = await bcrypt.hash(SESSION_ENCRYPTION_SALT, 10);
+    encryptionKey = derivedKey.substring(0, ENCRYPTION_KEY_LENGTH);
+  } catch (error) {
+    console.error('Error deriving encryption key:', error);
+    throw error; // Propagate the error
+  }
 }
 
 function encryptSessionData(data) {
@@ -146,7 +155,7 @@ async function signupPost(req, res) {
 
     req.session.user = { name: value.name, email: value.email };
 
-    res.redirect('/members'); 
+    res.redirect('/members');
   } catch (err) {
     console.error('Error during signup', err);
     res.status(500).send('Error signing up');
