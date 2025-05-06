@@ -176,7 +176,7 @@ async function signupPost(req, res) {
 }
 
 async function login(req, res) {
-  res.render('login');
+  res.render('login', { message: null });
 }
 
 async function loginPost(req, res) {
@@ -198,20 +198,20 @@ async function loginPost(req, res) {
     const user = await users.findOne({ email: value.email });
 
     if (!user) {
-      return res.render('login', { message: 'Invalid email/password combination' }); //  <--  CHANGED
+      return res.render('login', { message: 'Invalid email/password combination' });
     }
 
     const passwordMatch = await bcrypt.compare(value.password, user.password);
 
     if (passwordMatch) {
       req.session.user = { name: user.name, email: user.email };
-      res.redirect('/'); //  Or wherever you want to go on successful login
+      res.redirect('/');
     } else {
-      return res.render('login', { message: 'Invalid email/password combination' }); //  <--  CHANGED
+      return res.render('login', { message: 'Invalid email/password combination' });
     }
   } catch (err) {
     console.error('Error during login', err);
-    res.status(500).render('login', { message: 'Error logging in' }); //  <--  CHANGED
+    res.status(500).render('login', { message: 'Error logging in' });
   }
 }
 
