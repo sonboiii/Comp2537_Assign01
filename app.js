@@ -1,10 +1,10 @@
+
 const express = require('express');
 const session = require('express-session');
 const connectMongo = require('connect-mongo');
 const { MongoClient } = require('mongodb');
 const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
 const Joi = require('joi');
 const path = require('path');
 
@@ -13,49 +13,17 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
+
 const mongoUrl = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}/${process.env.MONGODB_DATABASE}`;
+
 const client = new MongoClient(mongoUrl);
+
 
 const MongoStore = connectMongo.create({
   client: client,
   dbName: process.env.MONGODB_DATABASE,
   collectionName: 'sessions',
 });
-
-// --- Encryption Setup ---
-const SESSION_ENCRYPTION_SALT = process.env.SESSION_ENCRYPTION_SALT; // From .env!
-const AES_ALGORITHM = 'aes-256-ctr';
-const ENCRYPTION_KEY_LENGTH = 32; // 256 bits
-
-let encryptionKey; // Store the derived key
-
-async function deriveEncryptionKey() {
-  if (!SESSION_ENCRYPTION_SALT) {
-    console.error('ERROR: SESSION_ENCRYPTION_SALT is not defined in .env!');
-    throw new Error('SESSION_ENCRYPTION_SALT is not defined'); // Prevent server start
-  }
-  try {
-    const derivedKey = await bcrypt.hash(SESSION_ENCRYPTION_SALT, 10);
-    encryptionKey = derivedKey.substring(0, ENCRYPTION_KEY_LENGTH);
-  } catch (error) {
-    console.error('Error deriving encryption key:', error);
-    throw error; // Propagate the error
-  }
-}
-
-function encryptSessionData(data) {
-  const iv = crypto.randomBytes(16).toString('hex');
-  const cipher = crypto.createCipheriv(AES_ALGORITHM, encryptionKey, Buffer.from(iv, 'hex'));
-  let encryptedData = cipher.update(JSON.stringify(data), 'utf8', 'hex');
-  encryptedData += cipher.final('hex');
-  return { iv, encryptedData };
-}
-
-function decryptSessionData(encryptedData, iv) {
-  const decipher = crypto.createDecipheriv(AES_ALGORITHM, encryptionKey, Buffer.from(iv, 'hex'));
-  const decrypted = decipher.update(encryptedData, 'hex', 'utf8') + decipher.final('utf8');
-  return JSON.parse(decrypted);
-}
 
 app.use(
   session({
@@ -65,9 +33,6 @@ app.use(
     store: MongoStore,
     cookie: {
       maxAge: 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-      sameSite: 'strict',
     },
   })
 );
@@ -79,9 +44,7 @@ app.set('view engine', 'ejs');
 async function run() {
   try {
     await client.connect();
-    console.log('Connected to MongoDB');
-
-    await deriveEncryptionKey(); // Derive the key
+    console.log('Connected successfully to MongoDB');
 
     // --- ROUTES ---
     app.get('/', home);
@@ -93,14 +56,19 @@ async function run() {
     app.get('/members', members);
     app.use(error404);
 
-    app.listen(port, () => console.log(`Server listening on port ${port}`));
-  } catch (error) {
-    console.error('Server startup error:', error);
+    app.listen(port, () => {
+      console.log(`Server listening on port ${port}`);
+    });
+  } catch (err) {
+    console.error('Error connecting to MongoDB', err);
   }
 }
 
-run().catch(console.error);
+run().catch(console.dir);
 
+// --- Route Handlers ---
+
+// Helper function to check if user is logged in
 const isLoggedIn = (req, res, next) => {
   if (req.session.user) {
     next();
@@ -191,26 +159,14 @@ async function loginPost(req, res) {
     const passwordMatch = await bcrypt.compare(value.password, user.password);
 
     if (passwordMatch) {
-      const sessionData = { name: user.name, email: user.email };
-      const { iv, encryptedData } = encryptSessionData(sessionData);
-
-      req.session.encryptedData = encryptedData;
-      req.session.iv = iv;
-      req.session.userId = user._id; // Store user ID separately
-
-      req.session.regenerate((err) => {
-        if (err) {
-          console.error('Session error:', err);
-          return res.status(500).send('Session error');
-        }
-        res.redirect('/members');
-      });
+      req.session.user = { name: user.name, email: user.email };
+      res.redirect('/members');
     } else {
-      return res.status(400).send('Invalid credentials');
+      return res.status(400).send('Invalid email/password combination');
     }
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).send('Login failed');
+  } catch (err) {
+    console.error('Error during login', err);
+    res.status(500).send('Error logging in');
   }
 }
 
@@ -224,19 +180,12 @@ async function logout(req, res) {
 }
 
 async function members(req, res) {
-  if (!req.session.userId) {
-    return res.redirect('/');
-  }
-
-  try {
-    const decryptedSession = decryptSessionData(req.session.encryptedData, req.session.iv);
-
+  if (req.session.user) {
     const images = ['cat1.jpg', 'cat2.jpg', 'cat3.jpg'];
     const randomImage = images[Math.floor(Math.random() * images.length)];
-    res.render('members', { user: decryptedSession, randomImage });
-  } catch (error) {
-    console.error('Members area error:', error);
-    res.status(500).send('Error accessing members area');
+    res.render('members', { user: req.session.user, randomImage: randomImage });
+  } else {
+    res.redirect('/');
   }
 }
 
