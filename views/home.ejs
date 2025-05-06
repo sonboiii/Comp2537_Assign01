@@ -7,22 +7,22 @@
 
 <body>
 
-    <h1>Welcome to Our Site</h1>
-  
-    <% if (user) { %>
-      <p><%= message %></p>
-      <p>
-        <a href="<%= membersLink %>">Go to Members Area</a> |
-        <a href="<%= logoutLink %>">Log Out</a>
-      </p>
-    <% } else { %>
-      <p><%= message %></p>
-      <p>
-        <a href="<%= signupLink %>">Sign Up</a> |
-        <a href="<%= loginLink %>">Log In</a>
-      </p>
-    <% } %>
-  
+  <h1>Welcome to Our Site</h1>
+
+  <% if (user) { %>
+    <p><%= message %></p>
+    <p>
+      <a href="<%= membersLink %>">Go to Members Area</a> |
+      <a href="<%= logoutLink %>">Log Out</a>
+    </p>
+  <% } else { %>
+    <p><%= message %></p>
+    <p>
+      <a href="<%= signupLink %>">Sign Up</a> |
+      <a href="<%= loginLink %>">Log In</a>
+    </p>
+  <% } %>
+
 </body>
 
 </html>

@@ -57,11 +57,11 @@ async function nosqlInjection(req, res) {
     return;
   }
 
-    const result = await users.find({ name: username }).project({ name: 1, email: 1, _id: 0 }).toArray();
+  const result = await users.find({ name: username }).project({ name: 1, email: 1, _id: 0 }).toArray();
 
-    console.log(result);
+  console.log(result);
 
-    res.send(`<h1>Hello ${result[0].name}</h1>`);
+  res.send(`<h1>Hello ${result[0].name}</h1>`);
 
 
 }
@@ -107,15 +107,16 @@ const isLoggedIn = (req, res, next) => {
 
 async function home(req, res) {
   if (req.session.user) {
-    res.render('home', { 
+    res.render('home', {
       user: req.session.user,
-      message: `Welcome, ${req.session.user.name}!`,
-      membersLink: '/members',
-      logoutLink: '/logout'
+      message: `Welcome, ${req.session.user.name}!`, // Personalized message
+      membersLink: '/members',                 // Link to members area
+      logoutLink: '/logout'                    // Link to logout
     });
   } else {
-    res.render('home', { 
+    res.render('home', {
       user: null,
+      message: 'Please sign up or log in to continue.', // Message for non-logged-in users
       signupLink: '/signup',
       loginLink: '/login'
     });
@@ -197,7 +198,7 @@ async function loginPost(req, res) {
 
     if (passwordMatch) {
       req.session.user = { name: user.name, email: user.email };
-      res.redirect('/members');
+      res.redirect('/home');
     } else {
       return res.status(400).send('Invalid email/password combination');
     }
