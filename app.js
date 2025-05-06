@@ -57,32 +57,18 @@ async function nosqlInjection(req, res) {
     return;
   }
 
-  try {
-    const db = client.db(process.env.MONGODB_DATABASE);
-    const users = db.collection('users'); // Access the 'users' collection
-
-    //  *** IMPORTANT ***
-    //  The original code had `userCollection` which was not defined in this scope.
-    //  I've replaced it with `users` (the collection you're already using).
-    //  This is crucial for the code to work correctly.
-
     const result = await users.find({ name: username }).project({ name: 1, email: 1, _id: 0 }).toArray();
 
     console.log(result);
 
-    if (result.length > 0) {
-      res.send(`<h1>Hello ${result[0].name}</h1>`);
-    } else {
-      res.send(`<h1>User ${username} not found</h1>`);
-    }
-  } catch (error) {
-    console.error("Error during NoSQL injection attempt:", error);
-    res.status(500).send("An error occurred while processing your request.");
-  }
+    res.send(`<h1>Hello ${result[0].name}</h1>`);
+
+
 }
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
+
 app.set('view engine', 'ejs');
 
 async function run() {
@@ -232,5 +218,5 @@ async function members(req, res) {
 }
 
 async function error404(req, res) {
-  res.status(404).send('Page not found');
+  res.status(404).send('Page not found - 404');
 }
