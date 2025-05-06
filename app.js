@@ -23,6 +23,9 @@ const MongoStore = connectMongo.create({
   client: client,
   dbName: process.env.MONGODB_DATABASE,
   collectionName: 'sessions',
+  crypto: {
+    secret: process.env.MONGODB_SESSION_SECRET
+  }
 });
 
 app.use(
@@ -66,9 +69,7 @@ async function run() {
 
 run().catch(console.dir);
 
-// --- Route Handlers ---
 
-// Helper function to check if user is logged in
 const isLoggedIn = (req, res, next) => {
   if (req.session.user) {
     next();
