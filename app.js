@@ -107,9 +107,18 @@ const isLoggedIn = (req, res, next) => {
 
 async function home(req, res) {
   if (req.session.user) {
-    res.render('home', { user: req.session.user });
+    res.render('home', { 
+      user: req.session.user,
+      message: `Welcome, ${req.session.user.name}!`,
+      membersLink: '/members',
+      logoutLink: '/logout'
+    });
   } else {
-    res.render('home', { user: null });
+    res.render('home', { 
+      user: null,
+      signupLink: '/signup',
+      loginLink: '/login'
+    });
   }
 }
 
