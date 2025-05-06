@@ -39,6 +39,47 @@ app.use(
     },
   })
 );
+async function nosqlInjection(req, res) {
+  var username = req.query.user;
+
+  if (!username) {
+    res.send(`<h3>no user provided - try /nosql-injection?user=name</h3> <h3>or /nosql-injection?user[$ne]=name</h3>`);
+    return;
+  }
+  console.log("user: " + username);
+
+  const schema = Joi.string().max(20).required();
+  const validationResult = schema.validate(username);
+
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
+    return;
+  }
+
+  try {
+    const db = client.db(process.env.MONGODB_DATABASE);
+    const users = db.collection('users'); // Access the 'users' collection
+
+    //  *** IMPORTANT ***
+    //  The original code had `userCollection` which was not defined in this scope.
+    //  I've replaced it with `users` (the collection you're already using).
+    //  This is crucial for the code to work correctly.
+
+    const result = await users.find({ name: username }).project({ name: 1, email: 1, _id: 0 }).toArray();
+
+    console.log(result);
+
+    if (result.length > 0) {
+      res.send(`<h1>Hello ${result[0].name}</h1>`);
+    } else {
+      res.send(`<h1>User ${username} not found</h1>`);
+    }
+  } catch (error) {
+    console.error("Error during NoSQL injection attempt:", error);
+    res.status(500).send("An error occurred while processing your request.");
+  }
+}
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
