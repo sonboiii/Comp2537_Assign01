@@ -1,4 +1,4 @@
-// app.js
+
 const express = require('express');
 const session = require('express-session');
 const connectMongo = require('connect-mongo');
@@ -6,26 +6,25 @@ const { MongoClient } = require('mongodb');
 const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
-const path = require('path'); // For serving static files (images)
+const path = require('path');
 
-dotenv.config(); // Load environment variables from .env
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// MongoDB Connection URL
+
 const mongoUrl = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}/${process.env.MONGODB_DATABASE}`;
 
 const client = new MongoClient(mongoUrl);
 
-// Session store
+
 const MongoStore = connectMongo.create({
   client: client,
   dbName: process.env.MONGODB_DATABASE,
   collectionName: 'sessions',
 });
 
-// Session middleware
 app.use(
   session({
     secret: process.env.MONGODB_SESSION_SECRET,
@@ -33,14 +32,14 @@ app.use(
     saveUninitialized: false,
     store: MongoStore,
     cookie: {
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 60 * 60 * 1000, 
     },
   })
 );
 
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-app.use(express.static('public')); // Serve static files from 'public' directory
-app.set('view engine', 'ejs'); // Set 'ejs' as the template engine
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+app.set('view engine', 'ejs');
 
 async function run() {
   try {
@@ -78,48 +77,43 @@ const isLoggedIn = (req, res, next) => {
   }
 };
 
-// 1. Home page -site: / method: GET
 async function home(req, res) {
   if (req.session.user) {
-    res.render('home', { user: req.session.user }); // Render home page for logged-in user
+    res.render('home', { user: req.session.user });
   } else {
-    res.render('home', { user: null }); // Render home page for not logged-in user
+    res.render('home', { user: null });
   }
 }
 
-// 2. Sign up page -site:/signup method: GET
 async function signup(req, res) {
-  res.render('signup'); //display the signup form
+  res.render('signup');
 }
 
 async function signupPost(req, res) {
-  // Validation schema using Joi
   const schema = Joi.object({
     name: Joi.string().max(255).required(),
     email: Joi.string().email().max(255).required(),
-    password: Joi.string().min(6).max(255).required(), // Adjust min/max as needed
+    password: Joi.string().min(6).max(255).required(),
   });
 
   const { error, value } = schema.validate(req.body);
 
   if (error) {
-    return res.status(400).send(error.details[0].message); // Send validation error
+    return res.status(400).send(error.details[0].message);
   }
 
   try {
     const db = client.db(process.env.MONGODB_DATABASE);
     const users = db.collection('users');
 
-    // Check if email already exists
+
     const existingUser = await users.findOne({ email: value.email });
     if (existingUser) {
       return res.status(400).send('Email already exists');
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(value.password, 10);
 
-    // Insert the new user
     const newUser = {
       name: value.name,
       email: value.email,
@@ -127,23 +121,20 @@ async function signupPost(req, res) {
     };
     await users.insertOne(newUser);
 
-    // Create session
     req.session.user = { name: value.name, email: value.email };
 
-    res.redirect('/members'); // Redirect to members area
+    res.redirect('/members'); 
   } catch (err) {
     console.error('Error during signup', err);
     res.status(500).send('Error signing up');
   }
 }
 
-// 3. Log in page -site:/login method: GET
 async function login(req, res) {
   res.render('login');
 }
 
 async function loginPost(req, res) {
-  // Validation schema for login
   const schema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
@@ -179,7 +170,6 @@ async function loginPost(req, res) {
   }
 }
 
-// 5. Log out page -site:/logout method: GET
 async function logout(req, res) {
   req.session.destroy((err) => {
     if (err) {
@@ -189,7 +179,6 @@ async function logout(req, res) {
   });
 }
 
-// 4. Members only page - site: /members method: GET
 async function members(req, res) {
   if (req.session.user) {
     const images = ['cat1.jpg', 'cat2.jpg', 'cat3.jpg'];
@@ -200,7 +189,6 @@ async function members(req, res) {
   }
 }
 
-// 6. 404 page - site: any non-assigned URLs method: GET
 async function error404(req, res) {
   res.status(404).send('Page not found');
 }
