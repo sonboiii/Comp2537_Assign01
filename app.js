@@ -110,14 +110,14 @@ async function home(req, res) {
   if (req.session.user) {
     res.render('home', {
       user: req.session.user,
-      message: `Welcome, ${req.session.user.name}!`, // Personalized message
-      membersLink: '/members',                 // Link to members area
-      logoutLink: '/logout'                    // Link to logout
+      message: `Welcome, ${req.session.user.name}!`,
+      membersLink: '/members',
+      logoutLink: '/logout'
     });
   } else {
     res.render('home', {
       user: null,
-      message: 'Please sign up or log in to continue.', // Message for non-logged-in users
+      message: 'Please sign up or log in to continue.',
       signupLink: '/signup',
       loginLink: '/login'
     });
