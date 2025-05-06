@@ -6,10 +6,9 @@
 </head>
 
 <body>
-    <h1>Members Area</h1>
 
     <% if (user) { %>
-        <p>Hello, <%= user.name %>!</p>
+        <h1>Hello, <%= user.name %>!</h1>
         <a href="/logout">Logout</a>
         <br>
         <img src="/images/<%= randomImage %>" alt="Random Cat Meme">
