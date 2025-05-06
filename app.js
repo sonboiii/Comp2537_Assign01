@@ -205,7 +205,7 @@ async function loginPost(req, res) {
 
     if (passwordMatch) {
       req.session.user = { name: user.name, email: user.email };
-      res.redirect('/home');
+      res.redirect('/');
     } else {
       return res.status(400).send('Invalid email/password combination');
     }
